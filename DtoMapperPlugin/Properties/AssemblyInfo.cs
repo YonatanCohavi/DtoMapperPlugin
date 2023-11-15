@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("DtoMapperPlugin")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("DtoMapperPlugin")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Yonatan Cohavi")]
 [assembly: AssemblyProduct("DtoMapperPlugin")]
 [assembly: AssemblyCopyright("Copyright ©  2023")]
 [assembly: AssemblyTrademark("")]

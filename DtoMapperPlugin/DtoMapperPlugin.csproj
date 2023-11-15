@@ -205,6 +205,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="DtoMapperPlugin.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -220,6 +221,11 @@
     <EmbeddedResource Include="MapperPluginControl.resx">
       <DependentUpon>MapperPluginControl.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Images\icon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
