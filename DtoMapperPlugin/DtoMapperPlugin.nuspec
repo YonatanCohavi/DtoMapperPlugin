@@ -7,7 +7,7 @@
     <authors>$author$</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
-    <icon>icon.png</icon>
+    <icon>images\icon.png</icon>
     <projectUrl>https://github.com/YonatanCohavi/DtoMapperPlugin</projectUrl>
     <description>$description$</description>
     <releaseNotes>First release</releaseNotes>
@@ -19,6 +19,7 @@
   </metadata>
     <files>
       <file src="bin\Release\DtoMapperPlugin.dll" target="lib\net48\Plugins" />
-      <file src="bin\Release\Images\Icon.png" target="" />
+      <file src="bin\Release\FastColoredTextBox.dll" target="lib\net48\Plugins\DtoMapperPlugin" />
+      <file src="bin\Release\Images\Icon.png" target="images" />
     </files>
 </package>
