@@ -8,6 +8,6 @@ namespace DtoMapperPlugin.Services
         public string Namespace { get; set; }
         public EntityMetadata Entity { get; set; }
         public IEnumerable<AttributeMetadata> Attributes { get; set; }
-        public bool GenerateLabels { get; set; }
+        public Settings GenerationSettings { get; set; }
     }
 }

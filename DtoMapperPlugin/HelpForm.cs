@@ -22,7 +22,7 @@ namespace DtoMapperPlugin
         }
         private string GetMapperProjectDemo()
         {
-            return "<Project Sdk=\"Microsoft.NET.Sdk\">\r\n\r\n  <PropertyGroup>\r\n    <TargetFrameworks>net462;net6.0</TargetFrameworks>\r\n    <Nullable>enable</Nullable>\r\n    <LangVersion>8.0</LangVersion>\r\n  </PropertyGroup>\r\n\r\n  <ItemGroup>\r\n    <PackageReference Include=\"YC.DynamicsMapper\" Version=\"1.0.9\" />\r\n  </ItemGroup>\r\n  <ItemGroup Condition=\"'$(TargetFramework)' == 'net462'\">\r\n    <PackageReference Include=\"Microsoft.CrmSdk.CoreAssemblies\" Version=\"9.0.2.49\" />\r\n  </ItemGroup>\r\n  <ItemGroup Condition=\"'$(TargetFramework)' == 'net6.0'\">\r\n    <PackageReference Include=\"Microsoft.PowerPlatform.Dataverse.Client\" Version=\"1.1.12\" />\r\n  </ItemGroup>\r\n</Project>\r\n";
+            return "<Project Sdk=\"Microsoft.NET.Sdk\">\r\n\r\n  <PropertyGroup>\r\n    <TargetFrameworks>net462;net6.0</TargetFrameworks>\r\n    <Nullable>enable</Nullable>\r\n    <LangVersion>8.0</LangVersion>\r\n  </PropertyGroup>\r\n\r\n  <ItemGroup>\r\n    <PackageReference Include=\"YC.DynamicsMapper\" Version=\"1.1.1\" />\r\n  </ItemGroup>\r\n  <ItemGroup Condition=\"'$(TargetFramework)' == 'net462'\">\r\n    <PackageReference Include=\"Microsoft.CrmSdk.CoreAssemblies\" Version=\"9.0.2.49\" />\r\n  </ItemGroup>\r\n  <ItemGroup Condition=\"'$(TargetFramework)' == 'net6.0'\">\r\n    <PackageReference Include=\"Microsoft.PowerPlatform.Dataverse.Client\" Version=\"1.1.12\" />\r\n  </ItemGroup>\r\n</Project>\r\n";
         }
 
     }

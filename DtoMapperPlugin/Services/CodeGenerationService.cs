@@ -22,6 +22,24 @@ namespace DtoMapperPlugin.Services
             }).ToArray();
             return _notsupprted;
         }
+        public void GenerateLabelSummary(CodeWriter cw, string schema, string label, bool oneLine)
+        {
+            var noteParts = new[]
+                    {
+                        "<summary>",
+                        $"{label}",
+                        $"<para>{schema}</para>",
+                        "</summary>"
+                    };
+
+            if (oneLine)
+                cw.AppendLine($"/// {string.Join(" ", noteParts)}");
+            else
+            {
+                for (int i = 0; i < noteParts.Length; i++)
+                    cw.AppendLine($"/// {noteParts[i]}");
+            }
+        }
         public string GenerateModelClass(GenerateModelOptions options)
         {
             var entity = options.Entity;
@@ -31,20 +49,26 @@ namespace DtoMapperPlugin.Services
             using (cw.BeginScope($"namespace {options.Namespace}"))
             {
                 var entityname = entity.DisplayName?.UserLocalizedLabel?.Label ?? string.Empty;
-                if (options.GenerateLabels && entityname != string.Empty)
+                if (options.GenerationSettings.GenerateLabels && entityname != string.Empty)
                 {
-                    cw.AppendLine("/// <summary>");
-                    cw.AppendLine($"/// {entityname}");
-                    cw.AppendLine($"/// <para>{entity.LogicalName}</para>");
-                    cw.AppendLine("/// </summary>");
+                    GenerateLabelSummary(cw, entity.LogicalName, entityname, options.GenerationSettings.GenerateLabelsOneLine);
                 }
                 cw.AppendLine($"[CrmEntity(\"{entity.LogicalName}\")]");
+
                 using (cw.BeginScope($"public class {LogicalToPropertyName(entity.LogicalName, entity.IsCustomEntity)}"))
                 {
                     if (options.Attributes.Any(att => entity.PrimaryIdAttribute == att.LogicalName))
                     {
-                        cw.AppendLine($"[CrmField(\"{entity.PrimaryIdAttribute}\", Mapping = MappingType.PrimaryId)]");
-                        cw.AppendLine($"public Guid? Id {{ get; set; }}");
+                        var attributeCode = $"[CrmField(\"{entity.PrimaryIdAttribute}\", Mapping = MappingType.PrimaryId)]";
+                        if (options.GenerationSettings.OneLineAttributes)
+                        {
+                            cw.AppendLine($"{attributeCode} public Guid? Id {{ get; set; }}");
+                        }
+                        else
+                        {
+                            cw.AppendLine(attributeCode);
+                            cw.AppendLine($"public Guid? Id {{ get; set; }}");
+                        }
                     }
                     foreach (var att in options.Attributes)
                     {
@@ -52,21 +76,26 @@ namespace DtoMapperPlugin.Services
                         if (entity.PrimaryIdAttribute == att.LogicalName)
                             continue;
 
-                        var property = GetMapperAtribute(att);
-                        var mapperAttribute = GetProperty(att);
+                        var mapperAttribute = GetMapperAtribute(att);
+                        var property = GetProperty(att);
 
                         if (string.IsNullOrEmpty(mapperAttribute) || string.IsNullOrEmpty(property))
                             continue;
+
                         var label = att.DisplayName?.UserLocalizedLabel?.Label ?? string.Empty;
-                        if (options.GenerateLabels && label != string.Empty)
+                        if (options.GenerationSettings.GenerateLabels && label != string.Empty)
                         {
-                            cw.AppendLine("/// <summary>");
-                            cw.AppendLine($"/// {label}");
-                            cw.AppendLine($"/// <para>{att.LogicalName}</para>");
-                            cw.AppendLine("/// </summary>");
+                            GenerateLabelSummary(cw, att.LogicalName, label, options.GenerationSettings.GenerateLabelsOneLine);
                         }
-                        cw.AppendLine(property);
-                        cw.AppendLine(mapperAttribute);
+                        if (options.GenerationSettings.OneLineAttributes)
+                        {
+                            cw.AppendLine($"{mapperAttribute} {property}");
+                        }
+                        else
+                        {
+                            cw.AppendLine(mapperAttribute);
+                            cw.AppendLine(property);
+                        }
                     }
                 }
             }
@@ -101,7 +130,9 @@ namespace DtoMapperPlugin.Services
                 case AttributeTypeCode.Owner:
                     if (!(att is LookupAttributeMetadata lookupMd))
                         throw new Exception("invalid metadata type");
-                    return $"[CrmField(\"{att.LogicalName}\", Mapping = MappingType.Lookup,Target = \"{lookupMd.Targets.FirstOrDefault()}\")]";
+                    if (lookupMd.Targets.Length == 1)
+                        return $"[CrmField(\"{att.LogicalName}\", Mapping = MappingType.Lookup,Target = \"{lookupMd.Targets.FirstOrDefault()}\")]";
+                    return $"[CrmField(\"{att.LogicalName}\", Mapping = MappingType.DynamicLookup)]";
                 case AttributeTypeCode.Money:
                     return $"[CrmField(\"{att.LogicalName}\", Mapping = MappingType.Money)]";
                 case AttributeTypeCode.Picklist:
@@ -141,6 +172,7 @@ namespace DtoMapperPlugin.Services
                 case AttributeTypeCode.Customer:
                 case AttributeTypeCode.Lookup:
                 case AttributeTypeCode.Owner:
+                case AttributeTypeCode.Uniqueidentifier:
                     return "Guid?";
                 case AttributeTypeCode.Money:
                 case AttributeTypeCode.Decimal:
@@ -168,8 +200,6 @@ namespace DtoMapperPlugin.Services
                 case AttributeTypeCode.Integer:
                 case AttributeTypeCode.BigInt:
                     return "int?";
-                case AttributeTypeCode.Uniqueidentifier:
-                    return "Guid?";
                 default:
                     throw new Exception("attrbiute type is not supported");
             }

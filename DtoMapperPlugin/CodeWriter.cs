@@ -29,6 +29,7 @@ namespace DtoMapperPlugin
         public void AddUsing(string @using) => content.Append("using ").Append(@using).AppendLine(";");
         public void AppendLine(string line) => content.Append(new string('\t', indentLevel)).AppendLine(line);
         public void AppendLine() => content.AppendLine();
+        public void Append(string line) => content.Append(line);
         public IDisposable BeginScope(string line)
         {
             AppendLine(line);
