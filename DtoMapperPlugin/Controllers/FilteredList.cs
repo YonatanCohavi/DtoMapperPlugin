@@ -14,8 +14,21 @@ namespace DtoMapperPlugin.Controllers
         public event Action<IEnumerable<FilteredListItem>> SelectedItemsChanged;
         public IReadOnlyCollection<string> SelectedKeys => _selectedKeys;
         public string Title { get => title.Text; set => title.Text = value; }
-        public bool CheckBoxes { get => listView.CheckBoxes; set => listView.CheckBoxes = value; }
+        public bool CheckBoxes
+        {
+            get
+            {
+                return listView.CheckBoxes;
+            }
+            set
+            {
+                listView.CheckBoxes = value;
+                selectAll.Enabled = value;
+                clearSelection.Enabled = value;
+            }
+        }
         public bool HasType { get => _hasType; set => SetHasType(value); }
+
         private bool _invokeCheckEvent = true;
         public void CheckItem(string key)
         {

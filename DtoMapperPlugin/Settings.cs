@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DtoMapperPlugin
+﻿namespace DtoMapperPlugin
 {
     /// <summary>
     /// This class can help you to store settings for your plugin
@@ -15,5 +9,9 @@ namespace DtoMapperPlugin
     public class Settings
     {
         public string LastUsedOrganizationWebappUrl { get; set; }
+        public bool GenerateLabels { get; set; }
+        public bool GenerateLabelsOneLine { get; set; }
+        public bool OneLineAttributes { get; set; }
+        public Settings Clone() => (Settings)MemberwiseClone();
     }
 }

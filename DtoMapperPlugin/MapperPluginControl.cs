@@ -15,10 +15,11 @@ namespace DtoMapperPlugin
 {
     public partial class MapperPluginControl : PluginControlBase, IStatusBarMessenger
     {
-        private Settings mySettings;
+        private Settings _settings;
         private EntityMetadata[] _entitiesMetadta;
         private AttributeMetadata[] _attributesMetadta;
         private CodeGenerationService _codeGenerationService;
+        private EntityMetadata _settingsEntity;
 
         public event EventHandler<StatusBarMessageEventArgs> SendMessageToStatusBar;
 
@@ -43,9 +44,17 @@ namespace DtoMapperPlugin
                 codeTextbox.Code = string.Empty;
                 return;
             }
+            RegenerateCode();
+        }
+
+        private void RegenerateCode()
+        {
             var entityLogicalName = entitilesList.SelectedKeys.FirstOrDefault();
             if (entityLogicalName == default)
+            {
+                codeTextbox.Code = string.Empty;
                 return;
+            }
 
             var selectedAttributes = attributesList.SelectedKeys;
             var entity = _entitiesMetadta.FirstOrDefault(e => e.LogicalName == entityLogicalName);
@@ -55,7 +64,7 @@ namespace DtoMapperPlugin
                 Namespace = "Models",
                 Entity = entity,
                 Attributes = attributes,
-                GenerateLabels = true,
+                GenerationSettings = _settings,
             };
             var code = _codeGenerationService.GenerateModelClass(generationOptions);
             codeTextbox.Code = code;
@@ -66,9 +75,9 @@ namespace DtoMapperPlugin
             ShowInfoNotification("This tool is generating DTO classes that are designed to work with \"YC.DynamicsMapper\" source generator", new Uri("https://github.com/YonatanCohavi/DynamicsMapper"));
 
             // Loads or creates the settings for the plugin
-            if (!SettingsManager.Instance.TryLoad(GetType(), out mySettings))
+            if (!SettingsManager.Instance.TryLoad(GetType(), out _settings))
             {
-                mySettings = new Settings();
+                _settings = new Settings();
 
                 LogWarning("Settings not found => a new settings file has been created!");
             }
@@ -92,8 +101,8 @@ namespace DtoMapperPlugin
 
         private void tsbSample_Click(object sender, EventArgs e)
         {
-            var f = new HelpForm();
-            f.ShowDialog();
+            var helpForm = new HelpForm();
+            helpForm.ShowDialog();
 
         }
         private void EntitilesList_SelectedItemsChanged(IEnumerable<FilteredListItem> items)
@@ -120,17 +129,13 @@ namespace DtoMapperPlugin
                         LogicalName = entityMetadata.LogicalName,
                     };
                     var response = (RetrieveEntityResponse)Service.Execute(r);
-                    args.Result = response.EntityMetadata.Attributes;
+                    args.Result = response.EntityMetadata;
 
                 },
                 PostWorkCallBack = (args) =>
                 {
-                    var attributes = (AttributeMetadata[])args.Result;
-                    _attributesMetadta = attributes
-                        .Where(a => a.IsValidForRead == true)
-                        .Where(a => string.IsNullOrEmpty(a.AttributeOf))
-                        .OrderBy(a => a.LogicalName)
-                        .ToArray();
+                    var enityMetadata = (EntityMetadata)args.Result;
+                    _attributesMetadta = GetFilteredAttrbitues(enityMetadata);
 
                     var items = _attributesMetadta
                         .Select(e => new FilteredListItem(e.LogicalName)
@@ -183,7 +188,7 @@ namespace DtoMapperPlugin
         private void MyPluginControl_OnCloseTool(object sender, EventArgs e)
         {
             // Before leaving, save the settings
-            SettingsManager.Instance.Save(GetType(), mySettings);
+            SettingsManager.Instance.Save(GetType(), _settings);
         }
 
         /// <summary>
@@ -193,13 +198,71 @@ namespace DtoMapperPlugin
         {
             base.UpdateConnection(newService, detail, actionName, parameter);
 
-            if (mySettings != null && detail != null)
+            if (_settings != null && detail != null)
             {
-                mySettings.LastUsedOrganizationWebappUrl = detail.WebApplicationUrl;
+                _settings.LastUsedOrganizationWebappUrl = detail.WebApplicationUrl;
                 LogInfo("Connection has changed to: {0}", detail.WebApplicationUrl);
             }
             Init();
 
+        }
+
+        private void GetSettingsEntity()
+        {
+            WorkAsync(new WorkAsyncInfo
+            {
+                Message = "Opening Settings",
+                Work = (worker, args) =>
+                {
+                    var r = new RetrieveEntityRequest
+                    {
+                        EntityFilters = EntityFilters.Attributes,
+                        RetrieveAsIfPublished = true,
+                        LogicalName = "contact",
+                    };
+                    var response = (RetrieveEntityResponse)Service.Execute(r);
+                    args.Result = response.EntityMetadata;
+
+                },
+                PostWorkCallBack = (args) =>
+                {
+                    _settingsEntity = (EntityMetadata)args.Result;
+                    OpenSettings();
+                }
+            });
+
+
+
+        }
+
+        private AttributeMetadata[] GetFilteredAttrbitues(EntityMetadata metadata)
+            => metadata.Attributes
+                        .Where(a => a.IsValidForRead == true)
+                        .Where(a => string.IsNullOrEmpty(a.AttributeOf))
+                        .OrderBy(a => a.LogicalName)
+                        .ToArray();
+
+        private void OpenSettings()
+        {
+            if (_settingsEntity == null)
+            {
+                ExecuteMethod(GetSettingsEntity);
+            }
+            else
+            {
+                var settingsForm = new SettingsForm(_settings.Clone(), _settingsEntity, GetFilteredAttrbitues(_settingsEntity));
+                settingsForm.ShowDialog();
+                if (settingsForm.DialogResult == System.Windows.Forms.DialogResult.OK)
+                {
+                    _settings = settingsForm.Settings;
+                    SettingsManager.Instance.Save(GetType(), _settings);
+                    RegenerateCode();
+                }
+            }
+        }
+        private void toolStripButton1_Click(object sender, EventArgs e)
+        {
+            OpenSettings();
         }
     }
 
