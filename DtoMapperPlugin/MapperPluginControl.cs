@@ -56,12 +56,10 @@ namespace DtoMapperPlugin
                 Entity = entity,
                 Attributes = attributes,
                 GenerateLabels = true,
-                PropertyPrefixRegex = $"^{cleanupRegex.Text}(.*)$",
             };
             var code = _codeGenerationService.GenerateModelClass(generationOptions);
             codeTextbox.Code = code;
         }
-
 
         private void MyPluginControl_Load(object sender, EventArgs e)
         {
@@ -98,7 +96,6 @@ namespace DtoMapperPlugin
             f.ShowDialog();
 
         }
-
         private void EntitilesList_SelectedItemsChanged(IEnumerable<FilteredListItem> items)
         {
             var item = items.FirstOrDefault();
@@ -130,7 +127,8 @@ namespace DtoMapperPlugin
                 {
                     var attributes = (AttributeMetadata[])args.Result;
                     _attributesMetadta = attributes
-                        .Where(a => a.IsValidForRead == true && string.IsNullOrEmpty(a.AttributeOf))
+                        .Where(a => a.IsValidForRead == true)
+                        .Where(a => string.IsNullOrEmpty(a.AttributeOf))
                         .OrderBy(a => a.LogicalName)
                         .ToArray();
 
@@ -201,11 +199,6 @@ namespace DtoMapperPlugin
                 LogInfo("Connection has changed to: {0}", detail.WebApplicationUrl);
             }
             Init();
-
-        }
-
-        private void attributesList_Load(object sender, EventArgs e)
-        {
 
         }
     }

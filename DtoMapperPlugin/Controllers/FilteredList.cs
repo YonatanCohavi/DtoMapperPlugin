@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace DtoMapperPlugin.Controllers
@@ -14,7 +13,7 @@ namespace DtoMapperPlugin.Controllers
         private bool _hasType;
         public event Action<IEnumerable<FilteredListItem>> SelectedItemsChanged;
         public IReadOnlyCollection<string> SelectedKeys => _selectedKeys;
-        public string Title { get => title.Text; set => title.Text = $"{value} (regex filter)"; }
+        public string Title { get => title.Text; set => title.Text = value; }
         public bool CheckBoxes { get => listView.CheckBoxes; set => listView.CheckBoxes = value; }
         public bool HasType { get => _hasType; set => SetHasType(value); }
         private bool _invokeCheckEvent = true;
@@ -66,15 +65,7 @@ namespace DtoMapperPlugin.Controllers
             var filterText = filtertextBox.Text?.ToLower() ?? string.Empty;
             listView.Items.Clear();
             _invokeCheckEvent = false;
-            try
-            {
-                var regex = new Regex($"{filterText}", RegexOptions.IgnoreCase);
-                listView.Items.AddRange(_items.Where(i => string.IsNullOrEmpty(filterText) || regex.IsMatch(i.Text)).Select(i => CreateItem(i)).ToArray());
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Invalid Regex");
-            }
+            listView.Items.AddRange(_items.Where(i => string.IsNullOrEmpty(filterText) || i.Text.ToLower().Contains(filterText)).Select(i => CreateItem(i)).ToArray());
             _invokeCheckEvent = true;
             ResizeColumns();
         }
@@ -213,11 +204,6 @@ namespace DtoMapperPlugin.Controllers
                 var selectedItems = _items.Where(i => _selectedKeys.Contains(i.Key));
                 SelectedItemsChanged?.Invoke(selectedItems);
             }
-        }
-
-        private void title_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }
