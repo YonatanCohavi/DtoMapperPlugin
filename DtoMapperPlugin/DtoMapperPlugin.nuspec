@@ -10,7 +10,7 @@
     <icon>images\icon.png</icon>
     <projectUrl>https://github.com/YonatanCohavi/DtoMapperPlugin</projectUrl>
     <description>$description$</description>
-    <releaseNotes>First release</releaseNotes>
+    <releaseNotes>Regex Filters and Property Cleanups</releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>Dynamics Crm Xrmtoolbox Plugin DTO Mapper</tags>
     <dependencies>

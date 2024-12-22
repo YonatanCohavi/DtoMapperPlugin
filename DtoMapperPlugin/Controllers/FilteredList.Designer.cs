@@ -43,11 +43,13 @@
             // 
             this.title.AutoSize = true;
             this.title.Dock = System.Windows.Forms.DockStyle.Top;
-            this.title.Location = new System.Drawing.Point(0, 34);
+            this.title.Location = new System.Drawing.Point(0, 25);
+            this.title.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.title.Name = "title";
-            this.title.Size = new System.Drawing.Size(34, 20);
+            this.title.Size = new System.Drawing.Size(23, 13);
             this.title.TabIndex = 0;
             this.title.Text = "title";
+            this.title.Click += new System.EventHandler(this.title_Click);
             // 
             // listView
             // 
@@ -57,9 +59,10 @@
             this.listView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listView.FullRowSelect = true;
             this.listView.HideSelection = false;
-            this.listView.Location = new System.Drawing.Point(0, 80);
+            this.listView.Location = new System.Drawing.Point(0, 58);
+            this.listView.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.listView.Name = "listView";
-            this.listView.Size = new System.Drawing.Size(430, 504);
+            this.listView.Size = new System.Drawing.Size(287, 322);
             this.listView.TabIndex = 1;
             this.listView.UseCompatibleStateImageBehavior = false;
             this.listView.View = System.Windows.Forms.View.Details;
@@ -74,9 +77,10 @@
             // filtertextBox
             // 
             this.filtertextBox.Dock = System.Windows.Forms.DockStyle.Top;
-            this.filtertextBox.Location = new System.Drawing.Point(0, 54);
+            this.filtertextBox.Location = new System.Drawing.Point(0, 38);
+            this.filtertextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.filtertextBox.Name = "filtertextBox";
-            this.filtertextBox.Size = new System.Drawing.Size(430, 26);
+            this.filtertextBox.Size = new System.Drawing.Size(287, 20);
             this.filtertextBox.TabIndex = 2;
             this.filtertextBox.TextChanged += new System.EventHandler(this.filterChanged);
             // 
@@ -88,7 +92,7 @@
             this.clearSelection});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(430, 34);
+            this.toolStrip1.Size = new System.Drawing.Size(287, 25);
             this.toolStrip1.TabIndex = 3;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -98,7 +102,7 @@
             this.selectAll.Image = ((System.Drawing.Image)(resources.GetObject("selectAll.Image")));
             this.selectAll.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.selectAll.Name = "selectAll";
-            this.selectAll.Size = new System.Drawing.Size(87, 29);
+            this.selectAll.Size = new System.Drawing.Size(59, 22);
             this.selectAll.Text = "Select All";
             this.selectAll.Click += new System.EventHandler(this.selectAll_Click);
             // 
@@ -108,20 +112,21 @@
             this.clearSelection.Image = ((System.Drawing.Image)(resources.GetObject("clearSelection.Image")));
             this.clearSelection.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.clearSelection.Name = "clearSelection";
-            this.clearSelection.Size = new System.Drawing.Size(131, 29);
+            this.clearSelection.Size = new System.Drawing.Size(89, 22);
             this.clearSelection.Text = "Clear Selection";
             this.clearSelection.Click += new System.EventHandler(this.clearSelection_Click);
             // 
             // FilteredSelectList
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.listView);
             this.Controls.Add(this.filtertextBox);
             this.Controls.Add(this.title);
             this.Controls.Add(this.toolStrip1);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "FilteredSelectList";
-            this.Size = new System.Drawing.Size(430, 584);
+            this.Size = new System.Drawing.Size(287, 380);
             this.Resize += new System.EventHandler(this.FilteredSelectList_Resize);
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();

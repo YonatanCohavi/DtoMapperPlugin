@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xrm.Sdk.Metadata;
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace DtoMapperPlugin.Services
@@ -31,20 +32,23 @@ namespace DtoMapperPlugin.Services
             using (cw.BeginScope($"namespace {options.Namespace}"))
             {
                 var entityname = entity.DisplayName?.UserLocalizedLabel?.Label ?? string.Empty;
+
+                var modelName = LogicalToPropertyName(entity.LogicalName, entity.IsCustomEntity == true, options.PropertyPrefixRegex);
                 if (options.GenerateLabels && entityname != string.Empty)
                 {
                     cw.AppendLine("/// <summary>");
                     cw.AppendLine($"/// {entityname}");
                     cw.AppendLine($"/// <para>{entity.LogicalName}</para>");
+                    cw.AppendLine($"/// Mapper: <see cref=\"{modelName}Mapper\"/>");
                     cw.AppendLine("/// </summary>");
                 }
                 cw.AppendLine($"[CrmEntity(\"{entity.LogicalName}\")]");
-                using (cw.BeginScope($"public class {LogicalToPropertyName(entity.LogicalName, entity.IsCustomEntity)}"))
+                using (cw.BeginScope($"public class {modelName}"))
                 {
                     if (options.Attributes.Any(att => entity.PrimaryIdAttribute == att.LogicalName))
                     {
                         cw.AppendLine($"[CrmField(\"{entity.PrimaryIdAttribute}\", Mapping = MappingType.PrimaryId)]");
-                        cw.AppendLine($"public Guid? Id {{ get; set; }}");
+                        cw.AppendLine("public Guid? Id { get; set; }");
                     }
                     foreach (var att in options.Attributes)
                     {
@@ -53,7 +57,7 @@ namespace DtoMapperPlugin.Services
                             continue;
 
                         var property = GetMapperAtribute(att);
-                        var mapperAttribute = GetProperty(att);
+                        var mapperAttribute = GetProperty(att, options);
 
                         if (string.IsNullOrEmpty(mapperAttribute) || string.IsNullOrEmpty(property))
                             continue;
@@ -72,15 +76,22 @@ namespace DtoMapperPlugin.Services
             }
             return cw.ToString();
         }
-        private string LogicalToPropertyName(string logicalName, bool? removePrefix = null)
+        private string LogicalToPropertyName(string logicalName, bool cleanup, string prefixRegex)
         {
             // remove the publisher prefix for custom attributes
             string cleanSchema;
-            if (removePrefix == true)
+            if (cleanup)
             {
-                var parts = logicalName.Split('_');
-                var skipCount = parts.Count() > 1 ? 1 : 0;
-                cleanSchema = string.Join("_", parts.Skip(skipCount));
+                var match = Regex.Match(logicalName, prefixRegex);
+                if (!match.Success)
+                    cleanSchema = logicalName;
+                else
+                {
+                    cleanSchema = match.Groups[1].Value;
+                }
+                //var parts = logicalName.Split('_');
+                //var skipCount = parts.Length > 1 ? 1 : 0;
+                //cleanSchema = logicalName.Replace(prefixRegex, string.Empty);
             }
             else
             {
@@ -129,10 +140,10 @@ namespace DtoMapperPlugin.Services
                     throw new Exception("attrbiute type is not supported");
             }
         }
-        private string GetProperty(AttributeMetadata att)
+        private string GetProperty(AttributeMetadata att, GenerateModelOptions options)
         {
             var typeString = GetMapperType(att.AttributeType);
-            return $"public {typeString} {LogicalToPropertyName(att.LogicalName, att.IsCustomAttribute)} {{ get; set; }}";
+            return $"public {typeString} {LogicalToPropertyName(att.LogicalName, att.IsCustomAttribute == true, options.PropertyPrefixRegex)} {{ get; set; }}";
         }
         private string GetMapperType(AttributeTypeCode? attributeType)
         {

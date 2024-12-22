@@ -9,5 +9,6 @@ namespace DtoMapperPlugin.Services
         public EntityMetadata Entity { get; set; }
         public IEnumerable<AttributeMetadata> Attributes { get; set; }
         public bool GenerateLabels { get; set; }
+        public string PropertyPrefixRegex { get; set; }
     }
 }
